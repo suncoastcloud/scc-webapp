@@ -1,2 +1,1 @@
-# scc-webapp
-A repository for SunCoast Cloud's one-page website
+This repository is empty. Any task executed on it should be considered a new capability and needs to be created.
