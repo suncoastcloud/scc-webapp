@@ -1,0 +1,20 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: '<azure-subscription>'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az deployment group create --resource-group <resource-group-name> --template-file main.bicep
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: '<azure-subscription>'
+    appName: 'suncoastcloudwebapp'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
