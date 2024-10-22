@@ -1,14 +1,5 @@
 param location string = resourceGroup().location
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: 'suncoastcloudstorage'
-  location: location
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-}
-
 resource appServicePlan 'Microsoft.Web/serverfarms@2021-02-01' = {
   name: 'suncoastcloudappserviceplan'
   location: location
@@ -32,7 +23,14 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
   }
 }
 
-output storageAccountName string = storageAccount.name
+module storageAccount 'modules/storageAccount.bicep' = {
+  name: 'storageAccountModule'
+  params: {
+    location: location
+  }
+}
+
+output storageAccountName string = storageAccount.outputs.storageAccountName
 output webAppName string = webApp.name
 output webAppUrl string = 'https://${webApp.defaultHostName}'
 
