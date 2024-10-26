@@ -10,13 +10,23 @@ To deploy this project using Bicep, follow these steps:
 
 1. Ensure you have the Azure CLI installed and logged in.
 2. Navigate to the directory containing the `main.bicep` file.
-3. Run the following command to deploy the resources:
+3. Create a resource group or use an existing one. To create:
+
+```bash
+az group create --location westus --resource-group scc-webapp-rg
+```
+
+4. Run the following command to deploy the resources:
 
 ```bash
 az deployment group create --resource-group <resource-group-name> --template-file main.bicep
 ```
 
 Replace `<resource-group-name>` with the name of your Azure resource group.
+
+## Deploy code to web app
+need to figure it out
+
 
 ## Pipeline Setup Instructions
 
