@@ -1,41 +1,31 @@
-@description('The location of the resources.')
-param location string = resourceGroup().location
+targetScope = 'subscription'
 
-@description('The name of the App Service Plan.')
-param appServicePlanName string = 'suncoastcloudappserviceplan'
+param location string = 'westus2'
 
-@description('The name of the Web App.')
-param webAppName string = 'suncoastcloudwebapp'
+@description('String to make resource names unique')
+var resourceToken = uniqueString(subscription().subscriptionId, location)
 
-resource appServicePlan 'Microsoft.Web/serverfarms@2021-02-01' = {
-  name: appServicePlanName
+@description('Create a resource group')
+resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' = {
+  name: 'rg-${resourceToken}'
   location: location
-  sku: {
-    name: 'F1'
-    tier: 'Free'
-  }
-  tags: {
-    environment: 'production'
-    project: 'suncoastcloud'
+}
+
+@description('Create a static web app')
+module swa 'br/public:avm/res/web/static-site:0.3.0' = {
+  name: 'scc-swa'
+  scope: rg
+  params: {
+    name: 'swa-${resourceToken}'
+    location: location
+    sku: 'Free'
+    repositoryUrl: 'https://github.com/suncoastcloud/scc-webapp'
+    branch: 'main'
   }
 }
 
-resource webApp 'Microsoft.Web/sites@2023-12-01' = {
-  name: webAppName
-  location: location
-  properties: {
-    serverFarmId: appServicePlan.id
-    siteConfig: {
-      appSettings: [
-        {
-          name: 'WEBSITE_RUN_FROM_PACKAGE'
-          value: '1'
-        }
-      ]
-    }
-  }
-  tags: {
-    environment: 'production'
-    project: 'suncoastcloud'
-  }
-}
+@description('Output the default hostname')
+output endpoint string = swa.outputs.defaultHostname
+
+@description('Output the static web app name')
+output staticWebAppName string = swa.outputs.name
