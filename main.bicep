@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-param location string = 'westus2'
+var location = 'westus2'
 
 @description('String to make resource names unique')
 var resourceToken = uniqueString(subscription().subscriptionId, location)
@@ -21,11 +21,13 @@ module swa 'br/public:avm/res/web/static-site:0.3.0' = {
     sku: 'Free'
     repositoryUrl: 'https://github.com/suncoastcloud/scc-webapp'
     branch: 'main'
+    buildProperties: {
+      appLocation: 'sitefiles'  
+      apiLocation: ''          
+      outputLocation: 'dist'    
+    }
   }
 }
 
 @description('Output the default hostname')
 output endpoint string = swa.outputs.defaultHostname
-
-@description('Output the static web app name')
-output staticWebAppName string = swa.outputs.name
