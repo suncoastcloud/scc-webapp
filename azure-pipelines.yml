@@ -1,0 +1,15 @@
+trigger:
+- main
+
+pool:
+  msi-pool
+
+steps:
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'scc-mg'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az deployment group create --resource-group <resource-group-name> --template-file main.bicep
+
