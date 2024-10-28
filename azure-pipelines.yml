@@ -2,19 +2,14 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  msi-pool
 
 steps:
 - task: AzureCLI@2
   inputs:
-    azureSubscription: '<azure-subscription>'
+    azureSubscription: 'scc-mg'
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
       az deployment group create --resource-group <resource-group-name> --template-file main.bicep
 
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: '<azure-subscription>'
-    appName: 'suncoastcloudwebapp'
-    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
