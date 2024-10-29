@@ -3,6 +3,7 @@ trigger:
 
 variables:
   LOCATION: "southcentralus"
+  siteFilesPath: "$(System.DefaultWorkingDirectory)/scc-webapp/sitefiles"
 
 stages:
   - stage: DeployInfrastructure
@@ -39,11 +40,7 @@ stages:
             inputs:
               azureSubscription: "scc-mg"
               scriptType: "bash"
-              scriptLocation: "inlineScript"
-              
+              scriptLocation: "inlineScript"              
               inlineScript: |
-                # Convert Windows path to Unix-style path
-                SITEFILES_PATH=$(wslpath -u 'C:\suncoastcloud\github\scc-webapp\sitefiles')
-                
                 # Upload files to the storage account
-                az storage blob upload-batch -d $(STORAGE_CONTAINER_NAME) --account-name $(STORAGE_ACCOUNT_NAME) -s $SITEFILES_PATH
+                az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --account-name $env:STORAGE_ACCOUNT_NAME -s $siteFilesPath
