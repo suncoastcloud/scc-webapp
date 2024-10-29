@@ -2,7 +2,7 @@ trigger:
   - main
 
 variables:
-  locatoin: "southcentralus"
+  location: "southcentralus"
   siteFilesPath: "$(System.DefaultWorkingDirectory)/scc-webapp/sitefiles"
 
 stages:
@@ -18,7 +18,7 @@ stages:
               scriptLocation: "inlineScript"
               inlineScript: |
                 # Deploy the Bicep template and capture the outputs
-                $outputs = az deployment sub create --location $(LOCATION) --template-file main.bicep --query properties.outputs | ConvertFrom-Json
+                $outputs = az deployment sub create --location $location --template-file main.bicep --query properties.outputs | ConvertFrom-Json
                 
                 # Extract the resource group name, storage account name, and storage container name from the outputs
                 $RESOURCE_GROUP_NAME = $outputs.resourceGroupName.value
