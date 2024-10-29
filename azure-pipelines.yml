@@ -42,8 +42,5 @@ stages:
               scriptType: "ps"
               scriptLocation: "inlineScript"
               inlineScript: |
-                # Define the path to the site files
-                $siteFilesPath = "$(siteFilesPath)"
-                
                 # Upload files to the storage account
                 az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --account-name $env:STORAGE_ACCOUNT_NAME -s "$(siteFilesPath)"
