@@ -18,7 +18,7 @@ stages:
               scriptLocation: "inlineScript"
               inlineScript: |
                 # Deploy the Bicep template and capture the outputs
-                $outputs = az deployment sub create --location $location --template-file main.bicep --query properties.outputs | ConvertFrom-Json
+                $outputs = az deployment sub create --location "$(location)" --template-file main.bicep --query properties.outputs | ConvertFrom-Json
                 
                 # Extract the resource group name, storage account name, and storage container name from the outputs
                 $RESOURCE_GROUP_NAME = $outputs.resourceGroupName.value
@@ -46,4 +46,4 @@ stages:
                 $siteFilesPath = "$(siteFilesPath)"
                 
                 # Upload files to the storage account
-                az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --account-name $env:STORAGE_ACCOUNT_NAME -s $siteFilesPath
+                az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --account-name $env:STORAGE_ACCOUNT_NAME -s "$(siteFilesPath)"
