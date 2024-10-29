@@ -5,7 +5,7 @@ variables:
   LOCATION: "southcentralus"
 
 stages:
-  - stage: Deploy Infrastructure
+  - stage: DeployInfrastructure
     jobs:
       - job: Deploy
         pool: msi-pool
@@ -29,7 +29,7 @@ stages:
                 echo "##vso[task.setvariable variable=STORAGE_ACCOUNT_NAME]$STORAGE_ACCOUNT_NAME"
                 echo "##vso[task.setvariable variable=STORAGE_CONTAINER_NAME]$STORAGE_CONTAINER_NAME"
 
-  - stage: Upload Site Files
+  - stage: UploadSiteFiles
     dependsOn: DeployInfrastructure
     jobs:
       - job: Upload
