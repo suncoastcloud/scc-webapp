@@ -40,8 +40,10 @@ stages:
               azureSubscription: "scc-mg"
               scriptType: "bash"
               scriptLocation: "inlineScript"
-              inlineScript:
-                # Upload files to the storage account
+              
+              inlineScript: |
+                # Convert Windows path to Unix-style path
                 SITEFILES_PATH=$(wslpath -u 'C:\suncoastcloud\github\scc-webapp\sitefiles')
-
-                az storage blob upload-batch -d $(STORAGE_CONTAINER_NAME) --account-name $(STORAGE_ACCOUNT_NAME) -s $SITEFILES_PATH  
+                
+                # Upload files to the storage account
+                az storage blob upload-batch -d $(STORAGE_CONTAINER_NAME) --account-name $(STORAGE_ACCOUNT_NAME) -s $SITEFILES_PATH
