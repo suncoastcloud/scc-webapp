@@ -1,15 +1,47 @@
 trigger:
-- main
+  - main
 
-pool:
-  msi-pool
+variables:
+  LOCATION: 'southcentralus'
 
-steps:
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'scc-mg'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      az deployment group create --resource-group <resource-group-name> --template-file main.bicep
+stages:
+- stage: DeployInfrastructure
+  jobs:
+  - job: Deploy
+    pool:
+      msi-pool
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'scc-mg'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Deploy the Bicep template and capture the outputs
+          outputs=$(az deployment sub create --location $(LOCATION) --template-file main.bicep --query properties.outputs)
+          
+          # Extract the resource group name, storage account name, and storage container name from the outputs
+          RESOURCE_GROUP_NAME=$(echo $outputs | jq -r '.resourceGroupName.value')
+          STORAGE_ACCOUNT_NAME=$(echo $outputs | jq -r '.storageAccountName.value')
+          STORAGE_CONTAINER_NAME=$(echo $outputs | jq -r '.storageContainerName.value')
+          
+          # Set the extracted values as pipeline variables
+          echo "##vso[task.setvariable variable=RESOURCE_GROUP_NAME]$RESOURCE_GROUP_NAME"
+          echo "##vso[task.setvariable variable=STORAGE_ACCOUNT_NAME]$STORAGE_ACCOUNT_NAME"
+          echo "##vso[task.setvariable variable=STORAGE_CONTAINER_NAME]$STORAGE_CONTAINER_NAME"
 
+- stage: UploadSiteFiles
+  dependsOn: DeployInfrastructure
+  jobs:
+  - job: Upload
+    pool:
+      msi-pool
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'scc-mg'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Upload files to the storage account
+          az storage blob upload-batch -d $(STORAGE_CONTAINER_NAME) --account-name $(STORAGE_ACCOUNT_NAME) -s sitefiles
