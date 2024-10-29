@@ -2,7 +2,7 @@ trigger:
   - main
 
 variables:
-  LOCATION: "southcentralus"
+  locatoin: "southcentralus"
   siteFilesPath: "$(System.DefaultWorkingDirectory)/scc-webapp/sitefiles"
 
 stages:
@@ -14,21 +14,21 @@ stages:
           - task: AzureCLI@2
             inputs:
               azureSubscription: "scc-mg"
-              scriptType: "bash"
+              scriptType: "ps"
               scriptLocation: "inlineScript"
               inlineScript: |
                 # Deploy the Bicep template and capture the outputs
-                outputs=$(az deployment sub create --location $(LOCATION) --template-file main.bicep --query properties.outputs)
-
+                $outputs = az deployment sub create --location $(LOCATION) --template-file main.bicep --query properties.outputs | ConvertFrom-Json
+                
                 # Extract the resource group name, storage account name, and storage container name from the outputs
-                RESOURCE_GROUP_NAME=$(echo $outputs | jq -r '.resourceGroupName.value')
-                STORAGE_ACCOUNT_NAME=$(echo $outputs | jq -r '.storageAccountName.value')
-                STORAGE_CONTAINER_NAME=$(echo $outputs | jq -r '.storageContainerName.value')
-
+                $RESOURCE_GROUP_NAME = $outputs.resourceGroupName.value
+                $STORAGE_ACCOUNT_NAME = $outputs.storageAccountName.value
+                $STORAGE_CONTAINER_NAME = $outputs.storageContainerName.value
+                
                 # Set the extracted values as pipeline variables
-                echo "##vso[task.setvariable variable=RESOURCE_GROUP_NAME]$RESOURCE_GROUP_NAME"
-                echo "##vso[task.setvariable variable=STORAGE_ACCOUNT_NAME]$STORAGE_ACCOUNT_NAME"
-                echo "##vso[task.setvariable variable=STORAGE_CONTAINER_NAME]$STORAGE_CONTAINER_NAME"
+                Write-Host "##vso[task.setvariable variable=RESOURCE_GROUP_NAME]$RESOURCE_GROUP_NAME"
+                Write-Host "##vso[task.setvariable variable=STORAGE_ACCOUNT_NAME]$STORAGE_ACCOUNT_NAME"
+                Write-Host "##vso[task.setvariable variable=STORAGE_CONTAINER_NAME]$STORAGE_CONTAINER_NAME"
 
   - stage: UploadSiteFiles
     dependsOn: DeployInfrastructure
@@ -39,8 +39,11 @@ stages:
           - task: AzureCLI@2
             inputs:
               azureSubscription: "scc-mg"
-              scriptType: "bash"
-              scriptLocation: "inlineScript"              
+              scriptType: "ps"
+              scriptLocation: "inlineScript"
               inlineScript: |
+                # Define the path to the site files
+                $siteFilesPath = "$(siteFilesPath)"
+                
                 # Upload files to the storage account
                 az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --account-name $env:STORAGE_ACCOUNT_NAME -s $siteFilesPath
