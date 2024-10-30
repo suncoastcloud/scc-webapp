@@ -1,0 +1,58 @@
+trigger:
+  - main
+
+variables:
+  # siteFilesPath: "C:\\suncoastcloud\\github\\scc-webapp\\sitefiles"
+  siteFilesPath: $(System.DefaultWorkingDirectory)/sitefiles
+
+stages:
+  - stage: DeployInfrastructure
+    jobs:
+      - job: Deploy
+        pool: msi-pool
+        steps:
+          - script: echo $(System.DefaultWorkingDirectory)
+            displayName: "Print Default Working Directory"
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: "scc-mg"
+              scriptType: "ps"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                # Deploy the Bicep template and capture the outputs
+
+                $outputs = az deployment sub create -l "southcentralus" --template-file main.bicep --query properties.outputs | ConvertFrom-Json
+
+                # Extract the resource group name, storage account name, and storage container name from the outputs
+
+                $RESOURCE_GROUP_NAME = $outputs.resourceGroupName.value
+                $STORAGE_ACCOUNT_NAME = $outputs.storageAccountName.value
+                $STORAGE_CONTAINER_NAME = $outputs.storageContainerName.value
+
+                # Set the extracted values as pipeline variables
+
+                Write-Host "##vso[task.setvariable variable=RESOURCE_GROUP_NAME]$RESOURCE_GROUP_NAME"
+                Write-Host "##vso[task.setvariable variable=STORAGE_ACCOUNT_NAME]$STORAGE_ACCOUNT_NAME"
+                Write-Host "##vso[task.setvariable variable=STORAGE_CONTAINER_NAME]$STORAGE_CONTAINER_NAME"
+
+  - stage: UploadSiteFiles
+    dependsOn: DeployInfrastructure
+    jobs:
+      - job: Upload
+        pool: msi-pool
+        steps:
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: "scc-mg"
+              KeyVaultName: "scc-vault"
+              SecretsFilter: "connectionString"
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: "scc-mg"
+              scriptType: "ps"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                # Upload files to the storage account
+                az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --account-name $env:STORAGE_ACCOUNT_NAME -s "$(siteFilesPath)" --connection-string "$(connectionString)"
