@@ -19,12 +19,12 @@ stages:
               inlineScript: |
                 # Deploy the Bicep template and capture the outputs
                 $outputs = az deployment sub create --location "$(location)" --template-file main.bicep --query properties.outputs | ConvertFrom-Json
-                
+
                 # Extract the resource group name, storage account name, and storage container name from the outputs
                 $RESOURCE_GROUP_NAME = $outputs.resourceGroupName.value
                 $STORAGE_ACCOUNT_NAME = $outputs.storageAccountName.value
                 $STORAGE_CONTAINER_NAME = $outputs.storageContainerName.value
-                
+
                 # Set the extracted values as pipeline variables
                 Write-Host "##vso[task.setvariable variable=RESOURCE_GROUP_NAME]$RESOURCE_GROUP_NAME"
                 Write-Host "##vso[task.setvariable variable=STORAGE_ACCOUNT_NAME]$STORAGE_ACCOUNT_NAME"
@@ -51,7 +51,7 @@ stages:
               inlineScript: |
                 # Retrieve the connection string from the key vault
                 $connectionString = "$(connectionString)"
-                
+
                 # Check if the connection string is retrieved
                 if (-not $connectionString) {
                   Write-Error "Connection string not found."
