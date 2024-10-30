@@ -36,11 +36,20 @@ stages:
       - job: Upload
         pool: msi-pool
         steps:
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: "scc-mg"
+              KeyVaultName: "scc-vault"
+              SecretsFilter: "connectionString"
+              RunAsPreJob: true
+
           - task: AzureCLI@2
             inputs:
               azureSubscription: "scc-mg"
               scriptType: "ps"
               scriptLocation: "inlineScript"
               inlineScript: |
-                # Upload files to the storage account
-                az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --account-name $env:STORAGE_ACCOUNT_NAME -s "$(siteFilesPath)"
+                # Upload files to the storage account using the connection string from the key vault
+
+                $connectionString = "$(connectionString)"
+                az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --connection-string $connectionString -s "$(siteFilesPath)"
