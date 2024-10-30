@@ -44,19 +44,15 @@ stages:
               azureSubscription: "scc-mg"
               KeyVaultName: "scc-vault"
               SecretsFilter: "connectionString"
-              RunAsPreJob: true
-
+              RunAsPreJob: true             
           - powershell: |
               $connectionString = "$(connectionString)"
 
               # Check if the connection string is retrieved
-
               if (-not $connectionString) {
                 Write-Error "Connection string not found."
                 exit 1
+              } else {
+                Write-Host "Connection string retrieved successfully."
               }
-
-              # Upload files to the storage account using the connection string from the key vault
-
-              az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --connection-string $connectionString -s "$(siteFilesPath)"
-            displayName: "Upload files to Azure Storage"
+            displayName: "Check Connection String"    
