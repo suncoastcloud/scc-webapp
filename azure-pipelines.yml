@@ -49,7 +49,14 @@ stages:
               scriptType: "ps"
               scriptLocation: "inlineScript"
               inlineScript: |
-                # Upload files to the storage account using the connection string from the key vault
-
+                # Retrieve the connection string from the key vault
                 $connectionString = "$(connectionString)"
-                az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --connection-string $connectionString -s "$(siteFilesPath)"
+                
+                # Check if the connection string is retrieved
+                if (-not $connectionString) {
+                  Write-Error "Connection string not found."
+                  exit 1
+                }
+
+                # Upload files to the storage account using the connection string from the key vault
+                az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --connection-string $connectionString -s "$(Build.SourcesDirectory)/sitefiles"
