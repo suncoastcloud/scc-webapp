@@ -38,25 +38,20 @@ stages:
         steps:
           - task: AzureKeyVault@2
             inputs:
-              azureSubscription: "scc-mg"
-              KeyVaultName: "scc-vault"
-              SecretsFilter: "connectionString"
+              azureSubscription: 'scc-mg'
+              KeyVaultName: 'scc-vault'
+              SecretsFilter: 'connectionString'
               RunAsPreJob: true
 
-          - task: AzureCLI@2
-            inputs:
-              azureSubscription: "scc-mg"
-              scriptType: "ps"
-              scriptLocation: "inlineScript"
-              inlineScript: |
-                # Retrieve the connection string from the key vault
-                $connectionString = "$(connectionString)"
+          - powershell: |
+              $connectionString = "$(connectionString)"
 
-                # Check if the connection string is retrieved
-                if (-not $connectionString) {
-                  Write-Error "Connection string not found."
-                  exit 1
-                }
+              # Check if the connection string is retrieved
+              if (-not $connectionString) {
+                Write-Error "Connection string not found."
+                exit 1
+              }
 
-                # Upload files to the storage account using the connection string from the key vault
-                az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --connection-string $connectionString -s "$(Build.SourcesDirectory)/sitefiles"
+              # Upload files to the storage account using the connection string from the key vault
+              az storage blob upload-batch -d $env:STORAGE_CONTAINER_NAME --connection-string $connectionString -s "$(Build.ArtifactStagingDirectory)"
+            displayName: 'Upload files to Azure Storage'
