@@ -72,12 +72,8 @@ stages:
               inlineScript: |
                 # Get the connection string for the storage account
 
-                $connectionString = az storage account keys list --resource-group $($RESOURCE_GROUP_NAME) --account-name $(STORAGE_ACCOUNT_NAME) --query '[0].value' -o tsv
+                $connectionString = az storage account keys list --resource-group "$(RESOURCE_GROUP_NAME)" --account-name "$(STORAGE_ACCOUNT_NAME)" --query '[0].value' -o tsv
 
                 # Upload the site files to the storage account
 
-                az storage blob upload-batch --account-name $(STORAGE_ACCOUNT_NAME) --account-key $connectionString --destination $(STORAGE_CONTAINER_NAME) --source '$(siteFilePath)'
-
-              
-
-
+                az storage blob upload-batch --connection-string $connectionString --destination "$(STORAGE_CONTAINER_NAME)" --source "$(siteFilePath)" --pattern '*'
