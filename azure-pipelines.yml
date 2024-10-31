@@ -49,7 +49,7 @@ stages:
             displayName: 'Check System.DefaultWorkingDirectory'
       
   - stage: UploadSiteFiles
-    dependsOn: DeployInfrastructure and CheckWorkingDirectory
+    dependsOn: CheckWorkingDirectory
     jobs:
       - job: Upload
         pool: msi-pool
