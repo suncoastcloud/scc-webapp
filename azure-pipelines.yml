@@ -61,7 +61,7 @@ stages:
           - task: AzureKeyVault@2
             inputs:
               azureSubscription: "scc-sc"
-              KeyVaultName: "scc-keyvault"
+              KeyVaultName: "scc-vault"
               SecretsFilter: "connectionString" 
 
           - task: AzureCLI@2
