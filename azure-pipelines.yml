@@ -1,5 +1,5 @@
 trigger:
-  - main
+- main
 
 variables:
   location: "southcentralus"
@@ -33,6 +33,20 @@ stages:
                 Write-Host "##vso[task.setvariable variable=STORAGE_ACCOUNT_NAME]$STORAGE_ACCOUNT_NAME"
                 Write-Host "##vso[task.setvariable variable=STORAGE_CONTAINER_NAME]$STORAGE_CONTAINER_NAME"
 
+  - stage: CheckWorkingDirectory
+    jobs:
+      - job: CheckDirectory
+        pool: msi-pool
+        steps:
+          - script: |
+              if [ -z "$(System.DefaultWorkingDirectory)" ]; then
+                echo "System.DefaultWorkingDirectory is not set."
+                exit 1
+              else
+                echo "System.DefaultWorkingDirectory is set to $(System.DefaultWorkingDirectory)."
+              fi
+            displayName: 'Check System.DefaultWorkingDirectory'
+      
   - stage: UploadSiteFiles
     dependsOn: DeployInfrastructure
     jobs:
@@ -43,17 +57,14 @@ stages:
             inputs:
               azureSubscription: "scc-mg"
               KeyVaultName: "scc-vault"
-              SecretsFilter: "connectionString"
-              RunAsPreJob: true      
-                     
-          - powershell: |
-              $connectionString = "$(connectionString)"
+              SecretsFilter: "*"
+              RunAsPreJob: true
 
-              # Check if the connection string is retrieved
-              if (-not $connectionString) {
-                Write-Error "Connection string not found."
-                exit 1
-              } else {
-                Write-Host "Connection string retrieved successfully."
-              }
-            displayName: "Check Connection String"    
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: "scc-mg"
+              scriptType: 'ps'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                $storageAccountKey = $(az keyvault secret show --name "storage-account-key" --vault-name "scc-vault" --query "value" -o tsv)
+                az storage blob upload-batch -d $(STORAGE_CONTAINER_NAME) -s $(siteFilesPath) --account-name $(STORAGE_ACCOUNT_NAME) --account-key $storageAccountKey
