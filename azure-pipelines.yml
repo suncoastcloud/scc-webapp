@@ -1,9 +1,9 @@
 trigger:
   - main
 
-variables:
-  location: "southcentralus"
-  siteFilePath: "$(Build.SourcesDirectory)/scc-webapp/sitefiles"
+# variables:
+#   location: "southcentralus"
+#   siteFilePath: "C:\\suncoastcloud\\github\\scc-webapp\\sitefiles"
 
 stages:
   - stage: DeployInfrastructure
@@ -19,7 +19,7 @@ stages:
               inlineScript: |
                 # Deploy the Bicep template and capture the outputs
 
-                $outputs = az deployment sub create --location '$(location)' --template-file main.bicep --query properties.outputs | ConvertFrom-Json
+                $outputs = az deployment sub create --location 'southcentralus' --template-file main.bicep --query properties.outputs | ConvertFrom-Json
 
 
                 # Extract the resource group name, storage account name, and storage container name from the outputs
@@ -44,16 +44,20 @@ stages:
                 Write-Host "Storage Container Name: $STORAGE_CONTAINER_NAME"
 
 
-                # Set the output variables for use in subsequent stages
+                # use these values in a subsequent stage
 
-                Write-Host "##vso[task.setvariable variable=resourceGroupName;isOutput=true]$RESOURCE_GROUP_NAME"
+                Write-Output "##vso[task.setvariable variable=resourceGroupName;isOutput=true]$RESOURCE_GROUP_NAME"
 
-                Write-Host "##vso[task.setvariable variable=storageAccountName;isOutput=true]$STORAGE_ACCOUNT_NAME"
+                Write-Output "##vso[task.setvariable variable=storageAccountName;isOutput=true]$STORAGE_ACCOUNT_NAME"
 
-                Write-Host "##vso[task.setvariable variable=storageContainerName;isOutput=true]$STORAGE_CONTAINER_NAME"
+                Write-Output "##vso[task.setvariable variable=storageContainerName;isOutput=true]$STORAGE_CONTAINER_NAME"
 
   - stage: UploadSiteFiles
     dependsOn: DeployInfrastructure
+    variables:
+      resourceGroupName: $[ dependencies.DeployInfrastructure.outputs['Deploy.resourceGroupName'] ]
+      storageAccountName: $[ dependencies.DeployInfrastructure.outputs['Deploy.storageAccountName'] ]
+      storageContainerName: $[ dependencies.DeployInfrastructure.outputs['Deploy.storageContainerName'] ]
     jobs:
       - job: Upload
         pool: msi-pool
@@ -77,4 +81,4 @@ stages:
 
                 # Upload the site files to the storage account
 
-                az storage blob upload-batch --connection-string $connectionString --destination '$(resourceGroupName)' --source '$(siteFilePath)' --pattern '*'
+                az storage blob upload-batch --connection-string $connectionString --destination '$(resourceGroupName)' --source 'C:\suncoastcloud\github\scc-webapp\sitefiles' --pattern '*'
