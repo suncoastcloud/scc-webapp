@@ -81,4 +81,4 @@ stages:
 
                 # Upload the site files to the storage account
 
-                az storage blob upload-batch --connection-string $connectionString --destination '$(storageContainerName)' --source 'C:\suncoastcloud\github\scc-webapp\sitefiles' --pattern '*'
+                az storage blob upload-batch --connection-string $connectionString --destination 'web' --source 'C:\suncoastcloud\github\scc-webapp\sitefiles' --pattern '*'
