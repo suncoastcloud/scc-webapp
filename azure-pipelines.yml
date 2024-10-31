@@ -57,6 +57,7 @@ stages:
     jobs:
       - job: Upload
         pool: msi-pool
+
         steps:
           - task: AzureKeyVault@2
             inputs:
@@ -76,4 +77,4 @@ stages:
 
                 # Upload the site files to the storage account
 
-                az storage blob upload-batch --connection-string $connectionString --destination $STORAGE_CONTAINER_NAME --source "$(siteFilePath)" --pattern '*'
+                az storage blob upload-batch --connection-string $connectionString --destination '$(resourceGroupName)' --source '$(siteFilePath)' --pattern '*'
