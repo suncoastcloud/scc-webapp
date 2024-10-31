@@ -36,9 +36,11 @@ stages:
   - stage: CheckWorkingDirectory
     jobs:
       - job: CheckDirectory
+        dependsOn: DeployInfrastructure
         pool: msi-pool
         steps:
           - script: |
+              Import-Module Microsoft.PowerShell.Security
               if [ -z "$(System.DefaultWorkingDirectory)" ]; then
                 echo "System.DefaultWorkingDirectory is not set."
                 exit 1
