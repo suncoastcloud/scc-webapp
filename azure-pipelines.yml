@@ -27,14 +27,9 @@ stages:
                 $STORAGE_ACCOUNT_NAME = $outputs.storageAccountName.value
                 $STORAGE_CONTAINER_NAME = $outputs.storageContainerName.value.Split('/')[0]
 
-                # Set the extracted values as pipeline variables
+                # Print out the values
+                Write-Host "Resource Group Name: $RESOURCE_GROUP_NAME"
+                Write-Host "Storage Account Name: $STORAGE_ACCOUNT_NAME"
+                Write-Host "Storage Container Name: $STORAGE_CONTAINER_NAME"
 
-                Write-Host "##vso[task.setvariable variable=RESOURCE_GROUP_NAME]$RESOURCE_GROUP_NAME"
 
-                Write-Host "##vso[task.setvariable variable=STORAGE_ACCOUNT_NAME]$STORAGE_ACCOUNT_NAME"
-
-                Write-Host "##vso[task.setvariable variable=STORAGE_CONTAINER_NAME]$STORAGE_CONTAINER_NAME"
-
-                Write-Host "RESOURCE_GROUP_NAME: $(SetVariables.RESOURCE_GROUP_NAME)"
-                Write-Host "STORAGE_ACCOUNT_NAME: $(SetVariables.STORAGE_ACCOUNT_NAME)"
-                Write-Host "STORAGE_CONTAINER_NAME: $(SetVariables.STORAGE_CONTAINER_NAME)"
