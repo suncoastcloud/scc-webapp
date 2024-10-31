@@ -37,19 +37,19 @@ stages:
     jobs:
       - job: CheckDirectory
         pool: msi-pool
-        steps:
-          - script: |
-              Import-Module Microsoft.PowerShell.Security
-              if [ -z "$(System.DefaultWorkingDirectory)" ]; then
-                echo "System.DefaultWorkingDirectory is not set."
-                exit 1
-              else
-                echo "System.DefaultWorkingDirectory is set to $(System.DefaultWorkingDirectory)."
-              fi
+        steps:        
+          - script: |              
+              if ([string]::IsNullOrEmpty($env:System_DefaultWorkingDirectory)) {
+              Write-Host "System.DefaultWorkingDirectory is not set."
+              exit 1
+              } else {
+                Write-Host "System.DefaultWorkingDirectory is set to $env:System_DefaultWorkingDirectory."
+              }
+              
             displayName: 'Check System.DefaultWorkingDirectory'
       
   - stage: UploadSiteFiles
-    dependsOn: DeployInfrastructure
+    dependsOn: DeployInfrastructure and CheckWorkingDirectory
     jobs:
       - job: Upload
         pool: msi-pool
