@@ -3,7 +3,7 @@ trigger:
 
 variables:
   location: "southcentralus"
-  siteFilesPath: "$(System.DefaultWorkingDirectory)/scc-webapp/sitefiles"
+  siteFilePath: '$(Build.SourcesDirectory)/scc-webapp/sitefiles'
 
 stages:
   - stage: DeployInfrastructure
@@ -32,24 +32,9 @@ stages:
                 Write-Host "##vso[task.setvariable variable=RESOURCE_GROUP_NAME]$RESOURCE_GROUP_NAME"
                 Write-Host "##vso[task.setvariable variable=STORAGE_ACCOUNT_NAME]$STORAGE_ACCOUNT_NAME"
                 Write-Host "##vso[task.setvariable variable=STORAGE_CONTAINER_NAME]$STORAGE_CONTAINER_NAME"
-
-  - stage: CheckWorkingDirectory
-    jobs:
-      - job: CheckDirectory
-        pool: msi-pool
-        steps:        
-          - script: |              
-              if ([string]::IsNullOrEmpty($env:System_DefaultWorkingDirectory)) {
-              Write-Host "System.DefaultWorkingDirectory is not set."
-              exit 1
-              } else {
-                Write-Host "System.DefaultWorkingDirectory is set to $env:System_DefaultWorkingDirectory."
-              }
-              
-            displayName: 'Check System.DefaultWorkingDirectory'
       
   - stage: UploadSiteFiles
-    dependsOn: CheckWorkingDirectory
+    dependsOn: DeployInfrastructure
     jobs:
       - job: Upload
         pool: msi-pool
