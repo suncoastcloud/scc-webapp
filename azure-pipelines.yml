@@ -13,7 +13,7 @@ stages:
         steps:
           - task: AzureCLI@2
             inputs:
-              azureSubscription: "scc-mg"
+              azureSubscription: "scc-sc"
               scriptType: "ps"
               scriptLocation: "inlineScript"
               inlineScript: |
@@ -41,16 +41,16 @@ stages:
         steps:
           - task: AzureKeyVault@2
             inputs:
-              azureSubscription: "scc-mg"
+              azureSubscription: "scc-sc"
               KeyVaultName: "scc-vault"
               SecretsFilter: "*"
               RunAsPreJob: true
 
           - task: AzureCLI@2
             inputs:
-              azureSubscription: "scc-mg"
+              azureSubscription: "scc-sc"
               scriptType: 'ps'
               scriptLocation: 'inlineScript'
               inlineScript: |
-                $storageAccountKey = $(az keyvault secret show --name "storage-account-key" --vault-name "scc-vault" --query "value" -o tsv)
-                az storage blob upload-batch -d $(STORAGE_CONTAINER_NAME) -s $(siteFilesPath) --account-name $(STORAGE_ACCOUNT_NAME) --account-key $storageAccountKey
+                $connectionString = $(az keyvault secret show --name "connectionString" --vault-name "scc-vault" --query "value" -o tsv)
+                az storage blob upload-batch -d $(STORAGE_CONTAINER_NAME) -s $(siteFilesPath) --account-name $(STORAGE_ACCOUNT_NAME) --account-key $connectionString
