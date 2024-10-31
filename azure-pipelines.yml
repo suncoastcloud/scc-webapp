@@ -24,12 +24,20 @@ stages:
                 # Extract the resource group name, storage account name, and storage container name from the outputs
 
                 $RESOURCE_GROUP_NAME = $outputs.resourceGroupName.value
+
                 $STORAGE_ACCOUNT_NAME = $outputs.storageAccountName.value
-                $STORAGE_CONTAINER_NAME = $outputs.storageContainerName.value.Split('/')[0]
+
+                $STORAGE_CONTAINER_PATH = $outputs.storageContainerName.value
+
+                $STORAGE_CONTAINER_NAME = $STORAGE_CONTAINER_PATH.Split('/')[-1]
 
                 # Print out the values
                 Write-Host "Resource Group Name: $RESOURCE_GROUP_NAME"
+
                 Write-Host "Storage Account Name: $STORAGE_ACCOUNT_NAME"
+
+                Write-Host "Storage Container Path: $STORAGE_CONTAINER_PATH"
+
                 Write-Host "Storage Container Name: $STORAGE_CONTAINER_NAME"
 
 
