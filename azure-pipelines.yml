@@ -44,7 +44,8 @@ stages:
               azureSubscription: "scc-mg"
               KeyVaultName: "scc-vault"
               SecretsFilter: "connectionString"
-              RunAsPreJob: true             
+              RunAsPreJob: true      
+                     
           - powershell: |
               $connectionString = "$(connectionString)"
 
