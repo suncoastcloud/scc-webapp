@@ -35,8 +35,6 @@ stages:
 
                 Write-Host "##vso[task.setvariable variable=STORAGE_CONTAINER_NAME]$STORAGE_CONTAINER_NAME"
 
-          - powershell: |
-              Write-Host "RESOURCE_GROUP_NAME: $(SetVariables.RESOURCE_GROUP_NAME)"
-              Write-Host "STORAGE_ACCOUNT_NAME: $(SetVariables.STORAGE_ACCOUNT_NAME)"
-              Write-Host "STORAGE_CONTAINER_NAME: $(SetVariables.STORAGE_CONTAINER_NAME)"
-            displayName: 'Display pipeline variables'
+                Write-Host "RESOURCE_GROUP_NAME: $(SetVariables.RESOURCE_GROUP_NAME)"
+                Write-Host "STORAGE_ACCOUNT_NAME: $(SetVariables.STORAGE_ACCOUNT_NAME)"
+                Write-Host "STORAGE_CONTAINER_NAME: $(SetVariables.STORAGE_CONTAINER_NAME)"
