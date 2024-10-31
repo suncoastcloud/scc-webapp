@@ -14,7 +14,7 @@ stages:
           - task: AzureCLI@2
             inputs:
               azureSubscription: 'scc-sc'
-              scriptType: 'ps'
+              scriptType: 'pscore'
               scriptLocation: 'inlineScript'
               inlineScript: |
                 # Deploy the Bicep template and capture the outputs
