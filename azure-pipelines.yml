@@ -1,9 +1,9 @@
 trigger:
-- main
+  - main
 
 variables:
-  location: 'southcentralus'
-  siteFilePath: '$(Build.SourcesDirectory)/scc-webapp/sitefiles'
+  location: "southcentralus"
+  siteFilePath: "$(Build.SourcesDirectory)/scc-webapp/sitefiles"
 
 stages:
   - stage: DeployInfrastructure
@@ -13,13 +13,14 @@ stages:
         steps:
           - task: AzureCLI@2
             inputs:
-              azureSubscription: 'scc-sc'
-              scriptType: 'pscore'
-              scriptLocation: 'inlineScript'
+              azureSubscription: "scc-sc"
+              scriptType: "pscore"
+              scriptLocation: "inlineScript"
               inlineScript: |
                 # Deploy the Bicep template and capture the outputs
 
                 $outputs = az deployment sub create --location '$(location)' --template-file main.bicep --query properties.outputs | ConvertFrom-Json
+
 
                 # Extract the resource group name, storage account name, and storage container name from the outputs
 
@@ -31,7 +32,9 @@ stages:
 
                 $STORAGE_CONTAINER_NAME = $STORAGE_CONTAINER_PATH.Split('/')[-1]
 
-                # Print out the values
+
+                # Print out the values to confirm they were captured correctly
+
                 Write-Host "Resource Group Name: $RESOURCE_GROUP_NAME"
 
                 Write-Host "Storage Account Name: $STORAGE_ACCOUNT_NAME"
@@ -39,21 +42,42 @@ stages:
                 Write-Host "Storage Container Path: $STORAGE_CONTAINER_PATH"
 
                 Write-Host "Storage Container Name: $STORAGE_CONTAINER_NAME"
-                
-  - stage: UploadSiteFiles 
+
+
+                # Set the output variables for use in subsequent stages
+
+                Write-Host "##vso[task.setvariable variable=resourceGroupName;isOutput=true]$RESOURCE_GROUP_NAME"
+
+                Write-Host "##vso[task.setvariable variable=storageAccountName;isOutput=true]$STORAGE_ACCOUNT_NAME"
+
+                Write-Host "##vso[task.setvariable variable=storageContainerName;isOutput=true]$STORAGE_CONTAINER_NAME"
+
+  - stage: UploadSiteFiles
     dependsOn: DeployInfrastructure
     jobs:
       - job: Upload
         pool: msi-pool
         steps:
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: "scc-sc"
+              KeyVaultName: "scc-keyvault"
+              SecretsFilter: "connectionString" 
+
           - task: AzureCLI@2
             inputs:
-              azureSubscription: 'scc-sc'
-              scriptType: 'pscore'
-              scriptLocation: 'inlineScript'
+              azureSubscription: "scc-sc"
+              scriptType: "pscore"
+              scriptLocation: "inlineScript"
               inlineScript: |
+                # Get the connection string for the storage account
+
+                $connectionString = az storage account keys list --resource-group $($RESOURCE_GROUP_NAME) --account-name $(STORAGE_ACCOUNT_NAME) --query '[0].value' -o tsv
+
                 # Upload the site files to the storage account
 
-                az storage blob upload-batch --account-name '$(STORAGE_ACCOUNT_NAME)' --destination '$(STORAGE_CONTAINER_NAME)' --source '$(siteFilePath)' --pattern '*'
+                az storage blob upload-batch --account-name $(STORAGE_ACCOUNT_NAME) --account-key $connectionString --destination $(STORAGE_CONTAINER_NAME) --source '$(siteFilePath)'
+
+              
 
 
