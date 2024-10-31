@@ -36,6 +36,7 @@ stages:
                 Write-Host "##vso[task.setvariable variable=STORAGE_CONTAINER_NAME]$STORAGE_CONTAINER_NAME"
 
           - powershell: |
+              Import-Module Microsoft.PowerShell.Security
               Write-Host "RESOURCE_GROUP_NAME: $(RESOURCE_GROUP_NAME)"
               Write-Host "STORAGE_ACCOUNT_NAME: $(STORAGE_ACCOUNT_NAME)"
               Write-Host "STORAGE_CONTAINER_NAME: $(STORAGE_CONTAINER_NAME)"
