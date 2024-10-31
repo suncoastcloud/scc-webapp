@@ -53,6 +53,8 @@ stages:
               scriptLocation: 'inlineScript'
               inlineScript: |
                 $connectionString = $(az keyvault secret show --name 'connectionString' --vault-name 'scc-vault' --query 'value' -o tsv)
-                $storageContainerName = "${env:STORAGE_CONTAINER_NAME}"
-                $siteFilePath = '$(siteFilePath)'
+                $storageContainerName = "$(STORAGE_CONTAINER_NAME)"
+                $siteFilePath = "$(siteFilePath)"
+                Write-Host "Storage Container Name: $storageContainerName"
+                Write-Host "Site File Path: $siteFilePath"
                 az storage blob upload-batch --destination $storageContainerName --source $siteFilePath
