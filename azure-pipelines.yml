@@ -25,13 +25,15 @@ stages:
 
                 $RESOURCE_GROUP_NAME = $outputs.resourceGroupName.value
                 $STORAGE_ACCOUNT_NAME = $outputs.storageAccountName.value
-                $STORAGE_CONTAINER_NAME = $outputs.storageContainerName.value
+                $STORAGE_CONTAINER_NAME = $outputs.storageContainerName.value.Split('/')[0]
 
                 # Set the extracted values as pipeline variables
 
                 Write-Host '##vso[task.setvariable variable=RESOURCE_GROUP_NAME]$RESOURCE_GROUP_NAME'
                 Write-Host '##vso[task.setvariable variable=STORAGE_ACCOUNT_NAME]$STORAGE_ACCOUNT_NAME'
                 Write-Host '##vso[task.setvariable variable=STORAGE_CONTAINER_NAME]$STORAGE_CONTAINER_NAME'
+                Write-Host "Storage Container Name: $STORAGE_CONTAINER_NAME"
+                Write-Host "Site File Path: $(siteFilePath)"
       
   - stage: UploadSiteFiles
     dependsOn: DeployInfrastructure
