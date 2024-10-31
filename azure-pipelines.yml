@@ -70,9 +70,9 @@ stages:
               scriptType: "pscore"
               scriptLocation: "inlineScript"
               inlineScript: |
-                # Get the connection string for the storage account
+                # Get the connection string from the key vault
 
-                $connectionString = az storage account keys list --resource-group "$(RESOURCE_GROUP_NAME)" --account-name "$(STORAGE_ACCOUNT_NAME)" --query '[0].value' -o tsv
+                $connectionString = az keyvault secret show --vault-name 'scc-vault' --name 'connectionString' --query 'value' -o tsv
 
                 # Upload the site files to the storage account
 
