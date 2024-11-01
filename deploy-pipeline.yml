@@ -22,5 +22,5 @@ stages:
                 echo "##vso[task.setvariable variable=storageContainerName]$($deployment.storageContainerName)"
                 
                 # Display the storage account and container names in the console
-                Write-Host "Storage Account Name: $(storageAccountName)"
-                Write-Host "Storage Container Name: $(storageContainerName.Split('/')[-1])"
+                Write-Host "Storage Account Name: $($deployment.storageAccountName)"
+                Write-Host "Storage Container Name: $($deployment.storageContainerName.Split('/')[-1])"
