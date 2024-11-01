@@ -50,4 +50,4 @@ stages:
 
                 $containerName = $storageContainerName -split '/' | Select-Object -Last 1
                 
-                az storage blob upload-batch --account-name $(storageAccountName) --destination $containerName) --source $(Build.SourcesDirectory)\scc-webapp\sitefiles --pattern "*"
+                az storage blob upload-batch --account-name $(storageAccountName) --destination $containerName --source $(Build.SourcesDirectory)\scc-webapp\sitefiles --pattern "*"
