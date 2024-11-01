@@ -14,15 +14,20 @@ stages:
               scriptType: "pscore"
               scriptLocation: "inlineScript"
               inlineScript: |
+                # deploy infra and get storage details
+
                 $output = az deployment sub create --location 'southcentralus' --template-file main.bicep --query "{ storageAccountName:properties.outputs.storageAccountName.value, storageContainerName:properties.outputs.storageContainerName.value}" --output json
                 $deployment = $output | ConvertFrom-Json
 
                 # convert storage details to pipeline variables
+
                 echo "##vso[task.setvariable variable=storageAccountName]$($deployment.storageAccountName)"
                 echo "##vso[task.setvariable variable=storageContainerName]$($deployment.storageContainerName)"
                 
-                # Display the storage account and container names in the console
+                # display the storage details and other config details in the console
+
                 Write-Host "Storage Account Name: $($deployment.storageAccountName)"
                 Write-Host "Storage Container Name: $($deployment.storageContainerName.Split('/')[-1])"
                 Write-Host "Pipeline Workspace: $(Pipeline.Workspace)"
                 Write-Host "System Default Working Directory: $(System.DefaultWorkingDirectory)"
+                Write-Host "Root of repo: $(Build.SourcesDirectory)"
