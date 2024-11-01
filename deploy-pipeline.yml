@@ -8,9 +8,6 @@ stages:
     jobs:
       - job: Deploy
         steps:
-          - checkout: self
-            path: C:\suncoastcloud\github\scc-webapp
-            
           - task: AzureCLI@2
             inputs:
               azureSubscription: "scc-sc"
@@ -19,7 +16,7 @@ stages:
               inlineScript: |
                 # deploy infra and get storage details
 
-                $output = az deployment sub create --location 'southcentralus' --template-file main.bicep --query "{ storageAccountName:properties.outputs.storageAccountName.value, storageContainerName:properties.outputs.storageContainerName.value}" --output json
+                $output = az deployment sub create --location 'southcentralus' --template-file $(Build.SourcesDirectory)\main.bicep --query "{ storageAccountName:properties.outputs.storageAccountName.value, storageContainerName:properties.outputs.storageContainerName.value}" --output json
                 $deployment = $output | ConvertFrom-Json
 
                 # convert storage details to pipeline variables
