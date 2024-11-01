@@ -33,9 +33,9 @@ stages:
                 Write-Host "Root of repo: $(Build.SourcesDirectory)"
 
   - stage: UploadFiles
+    dependsOn: DeployInfrastructure
     jobs:
-      - job: Upload
-        dependsOn: DeployInfrastructure
+      - job: Upload        
         steps:
           - task: AzureCLI@2
             inputs:
@@ -45,4 +45,4 @@ stages:
               inlineScript: |
                 # upload files to storage account
 
-                az storage blob upload-batch --account-name $(deployment.storageAccountName) --destination $deployment.storageContainerName.Split('/')[-1]) --source $(Build.SourcesDirectory)\scc-webapp\sitefiles --pattern "*"
+                az storage blob upload-batch --account-name $(deployment.storageAccountName) --destination $(deployment.storageContainerName.Split('/')[-1]) --source $(Build.SourcesDirectory)\scc-webapp\sitefiles --pattern "*"
