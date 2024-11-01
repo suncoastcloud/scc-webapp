@@ -1,0 +1,3 @@
+# Ignore Azure DevOps build agent working directories
+_works/
+_works/*
