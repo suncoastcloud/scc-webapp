@@ -24,3 +24,26 @@ stages:
                 # Display the storage account and container names in the console
                 Write-Host "Storage Account Name: $($deployment.storageAccountName)"
                 Write-Host "Storage Container Name: $($deployment.storageContainerName.Split('/')[-1])"
+                Write-Host "Pipeline Workspace: $(Pipeline.Workspace)"
+
+  - stage: UploadFiles
+    jobs:
+      - job: Upload
+        dependsOn: DeployInfrastructure
+        steps:
+          - task: AzureFileCopy@4
+            inputs:
+              SourcePath: '$(Pipeline.Workspace)/_scc-webapp'
+              azureSubscription: 'scc-sc'
+              Destination: 'AzureBlob'
+              storage: '$(storageAccountName)'
+              ContainerName: '$(storageContainerName)'
+              outputStorageUri: 'outputStorageUri'
+              outputStorageContainerSasToken: 'outputStorageContainerSasToken'
+              sasTokenTimeOutInMinutes: '240'
+              CleanTargetBeforeCopy: true
+              OverWrite: true
+              enableCopyPrerequisites: false
+              SkipArtifactsDownload: true
+              sasTokenTimeOutInMinutes: 240
+              TargetPath: '$web'              
