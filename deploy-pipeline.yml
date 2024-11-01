@@ -8,6 +8,9 @@ stages:
     jobs:
       - job: Deploy
         steps:
+          - checkout: self
+            path: C:\suncoastcloud\github\scc-webapp
+            
           - task: AzureCLI@2
             inputs:
               azureSubscription: "scc-sc"
