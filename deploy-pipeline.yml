@@ -1,0 +1,30 @@
+trigger:
+  - main
+
+pool: msi-pool
+
+stages:
+  - stage: DeployInfrastructure
+    jobs:
+      - job: Deploy
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: "scc-sc"
+              scriptType: "pscore"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                $output = az deployment sub create --location 'southcentralus' --template-file main.bicep --query "{resourceGroup:properties.outputs.resourceGroup.value, storageAccountName:properties.outputs.storageAccountName.value, storageContainerName:properties.outputs.storageContainerName.value}" --output json
+                $deployment = $output | ConvertFrom-Json
+
+                echo "##vso[task.setvariable variable=resourceGroup]$($deployment.resourceGroup)"
+                echo "##vso[task.setvariable variable=storageAccountName]$($deployment.storageAccountName)"
+                echo "##vso[task.setvariable variable=storageContainerName]$($deployment.storageContainerName)"
+
+  - stage: UploadFiles
+    dependsOn: DeployInfrastructure
+    jobs:
+      - job: Upload
+        steps:
+          - script: echo "Uploading files..."
+            displayName: "Upload Files"
