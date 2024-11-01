@@ -25,4 +25,4 @@ stages:
                 Write-Host "Storage Account Name: $($deployment.storageAccountName)"
                 Write-Host "Storage Container Name: $($deployment.storageContainerName.Split('/')[-1])"
                 Write-Host "Pipeline Workspace: $(Pipeline.Workspace)"
-                Write-Host "Build Working Directory: $(Build.WorkingDirectory)"               
+                Write-Host "System Default Working Directory: $(System.DefaultWorkingDirectory)"
