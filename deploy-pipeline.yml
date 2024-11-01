@@ -16,20 +16,11 @@ stages:
               inlineScript: |
                 $output = az deployment sub create --location 'southcentralus' --template-file main.bicep --query "{ storageAccountName:properties.outputs.storageAccountName.value, storageContainerName:properties.outputs.storageContainerName.value}" --output json
                 $deployment = $output | ConvertFrom-Json
-             
+
+                # convert storage details to pipeline variables
                 echo "##vso[task.setvariable variable=storageAccountName]$($deployment.storageAccountName)"
-
                 echo "##vso[task.setvariable variable=storageContainerName]$($deployment.storageContainerName)"
-
-  - stage: UploadFiles
-    dependsOn: DeployInfrastructure
-    jobs:
-      - job: Upload
-        steps:
-          - task: AzureCLI@2
-            inputs:
-              azureSubscription: "scc-sc"
-              scriptType: "pscore"
-              scriptLocation: "inlineScript"
-              inlineScript: |
-                az storage blob upload-batch --connection-string $(scc-webapp-storage-connectionstring) --destination $(storageContainerName) --source $(Build.SourcesDirectory)/sitefiles
+                
+                # Display the storage account and container names in the console
+                Write-Host "Storage Account Name: $($deployment.storageAccountName)"
+                Write-Host "Storage Container Name: $($deployment.storageContainerName)"
