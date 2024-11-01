@@ -31,3 +31,18 @@ stages:
                 Write-Host "Pipeline Workspace: $(Pipeline.Workspace)"
                 Write-Host "System Default Working Directory: $(System.DefaultWorkingDirectory)"
                 Write-Host "Root of repo: $(Build.SourcesDirectory)"
+
+  - stage: UploadFiles
+    jobs:
+      - job: Upload
+        dependsOn: DeployInfrastructure
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: "scc-sc"
+              scriptType: "pscore"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                # upload files to storage account
+
+                az storage blob upload-batch --account-name $(deployment.storageAccountName) --destination $deployment.storageContainerName.Split('/')[-1]) --source $(Build.SourcesDirectory)\scc-webapp\sitefiles --pattern "*"
