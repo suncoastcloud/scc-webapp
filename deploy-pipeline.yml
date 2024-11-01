@@ -48,4 +48,6 @@ stages:
               inlineScript: |
                 # upload files to storage account
 
-                az storage blob upload-batch --account-name $(storageAccountName) --destination $(storageContainerName.Split('/')[-1]) --source $(Build.SourcesDirectory)\scc-webapp\sitefiles --pattern "*"
+                $containerName = $storageContainerName -split '/' | Select-Object -Last 1
+                
+                az storage blob upload-batch --account-name $(storageAccountName) --destination $containerName) --source $(Build.SourcesDirectory)\scc-webapp\sitefiles --pattern "*"
